@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pista 2 de 5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-deep:#0e1d15; --bg-mid:#1a3222; --bg-glow:#2c4a30;
+  --ink:#f3ece0; --ink-dim:#b9c2b3;
+  --gold:#c9a227; --gold-light:#e8c766;
+  --frost:#9fc9d6; --rust:#a8453f;
+  --card-bg:rgba(14,29,21,0.6); --card-border:rgba(201,162,39,0.28);
+  --serif-display:'Cormorant Garamond', serif;
+  --serif-eyebrow:'Cinzel', serif;
+  --serif-body:'EB Garamond', serif;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;height:100%;}
+body{
+  min-height:100vh;
+  background:
+    radial-gradient(ellipse at 18% -10%, rgba(159,201,214,0.14), transparent 55%),
+    radial-gradient(ellipse at 85% 110%, rgba(201,162,39,0.10), transparent 60%),
+    linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-mid) 55%, var(--bg-glow) 100%);
+  color:var(--ink);
+  font-family:var(--serif-body);
+  display:flex; align-items:center; justify-content:center;
+  padding:32px 20px; position:relative; overflow:hidden;
+}
+canvas#snow{position:fixed;inset:0;pointer-events:none;z-index:1;}
+.card{
+  position:relative; z-index:2; max-width:560px; width:100%;
+  background:var(--card-bg); border:1px solid var(--card-border);
+  border-radius:4px; padding:48px 40px; backdrop-filter:blur(6px);
+  box-shadow:0 30px 60px -20px rgba(0,0,0,0.6);
+  animation:riseIn 1s ease both;
+}
+@keyframes riseIn{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+.lamp{display:block;margin:0 auto 24px;width:52px;height:auto;filter:drop-shadow(0 0 10px rgba(230,199,102,0.55));animation:flicker 4s ease-in-out infinite;}
+@keyframes flicker{0%,100%{opacity:1;}45%{opacity:0.86;}50%{opacity:1;}52%{opacity:0.92;}}
+.eyebrow{font-family:var(--serif-eyebrow);font-size:12px;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold-light);text-align:center;margin:0 0 14px;}
+h1{font-family:var(--serif-display);font-weight:600;font-style:italic;font-size:clamp(23px,4vw,30px);line-height:1.35;text-align:center;margin:0 0 30px;color:var(--ink);}
+.options{display:flex;flex-direction:column;gap:12px;margin-top:6px;}
+.option{
+  display:flex;align-items:center;gap:14px;
+  background:rgba(255,255,255,0.03); border:1px solid rgba(201,162,39,0.25);
+  border-radius:3px; padding:14px 16px; cursor:pointer; text-align:left;
+  font-family:var(--serif-body); font-size:16px; color:var(--ink); width:100%;
+  transition:border-color .2s, background .2s, transform .15s;
+}
+.option:hover{border-color:var(--gold-light); background:rgba(201,162,39,0.08);}
+.option:focus-visible{outline:2px solid var(--frost); outline-offset:2px;}
+.option:active{transform:translateY(1px);}
+.option .badge{
+  flex:0 0 auto;width:28px;height:28px;border-radius:50%;border:1px solid var(--gold);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif-eyebrow);font-size:12px;color:var(--gold-light);
+}
+.option.correct{border-color:var(--frost); background:rgba(159,201,214,0.12);}
+.option.correct .badge{border-color:var(--frost); color:var(--frost);}
+.option.wrong{border-color:var(--rust); background:rgba(168,69,63,0.12);}
+.option.wrong .badge{border-color:var(--rust); color:var(--rust);}
+.option.locked{cursor:default; pointer-events:none; opacity:0.9;}
+.feedback{
+  margin-top:22px; padding:16px 18px; border-radius:3px; font-size:17px; line-height:1.75;
+  border-left:3px solid transparent; display:none; white-space:pre-line;
+  font-family:var(--serif-display); font-style:italic;
+}
+.feedback.show{display:block; animation:fadeIn .5s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.feedback.correct{background:rgba(159,201,214,0.08);border-left-color:var(--frost);color:var(--ink);}
+.feedback.wrong{background:rgba(168,69,63,0.1);border-left-color:var(--rust);color:var(--ink);}
+@media (max-width:480px){.card{padding:36px 26px;}}
+@media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important;}}
+</style>
+</head>
+<body>
+<canvas id="snow"></canvas>
+
+<main class="card">
+  <svg class="lamp" viewBox="0 0 40 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#e8c766" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M10 18 L20 4 L30 18 Z" fill="rgba(230,199,102,0.18)"/>
+    <rect x="12" y="8" width="16" height="13" rx="1" fill="rgba(230,199,102,0.28)"/>
+    <line x1="20" y1="21" x2="20" y2="78"/>
+    <line x1="8" y1="78" x2="32" y2="78"/>
+  </svg>
+
+  <p class="eyebrow">Pista 2 de 5</p>
+  <h1>Qual é o nome do grande leão que representa a força e a esperança em Nárnia?</h1>
+
+  <div class="options" id="options">
+    <button class="option" data-correct="false"><span class="badge">A</span><span>Tumnus</span></button>
+    <button class="option" data-correct="false"><span class="badge">B</span><span>Edmund</span></button>
+    <button class="option" data-correct="true"><span class="badge">C</span><span>Aslan</span></button>
+    <button class="option" data-correct="false"><span class="badge">D</span><span>Caspian</span></button>
+  </div>
+  <div class="feedback" id="feedback"></div>
+</main>
+
+<script>
+const canvas=document.getElementById('snow');
+const ctx=canvas.getContext('2d');
+let w,h,flakes=[];
+function resize(){w=canvas.width=window.innerWidth;h=canvas.height=window.innerHeight;}
+window.addEventListener('resize',resize);
+resize();
+for(let i=0;i<55;i++){flakes.push({x:Math.random()*w,y:Math.random()*h,r:Math.random()*2+0.6,s:Math.random()*0.5+0.2});}
+function drawSnow(){
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle='rgba(242,236,224,0.75)';
+  flakes.forEach(f=>{
+    ctx.beginPath(); ctx.arc(f.x,f.y,f.r,0,Math.PI*2); ctx.fill();
+    f.y+=f.s; f.x+=Math.sin(f.y*0.01)*0.3;
+    if(f.y>h){f.y=-5;f.x=Math.random()*w;}
+  });
+  requestAnimationFrame(drawSnow);
+}
+if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){drawSnow();}
+
+const MSG_CORRETA="Exato. Aslan é o nome que carrega coragem, força e esperança em Nárnia.\n\nA próxima pista está mais perto da luz do que da sombra — procure onde a claridade costuma vencer o canto escuro.";
+const MSG_ERRO="Não foi dessa vez. Pense em quem carrega coragem, força e esperança.";
+
+const options=document.querySelectorAll('.option');
+const fb=document.getElementById('feedback');
+let answered=false;
+options.forEach(opt=>{
+  opt.addEventListener('click',()=>{
+    if(answered)return;
+    const correto=opt.dataset.correct==='true';
+    if(correto){
+      answered=true;
+      opt.classList.add('correct');
+      options.forEach(o=>o.classList.add('locked'));
+      fb.textContent=MSG_CORRETA;
+      fb.className='feedback show correct';
+      setTimeout(()=>{ window.location.href='03-pergunta.html'; },2000);
+    } else {
+      options.forEach(o=>o.classList.remove('wrong'));
+      opt.classList.add('wrong');
+      fb.textContent=MSG_ERRO;
+      fb.className='feedback show wrong';
+    }
+  });
+});
+</script>
+</body>
+</html>
